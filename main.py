@@ -1,13 +1,12 @@
-# main.py
-
 import logging
 import asyncio
-from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
+from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 from config import TOKEN
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from handlers.menu_handler import handle_menu  # وارد کردن handle_menu از فایل جدید
+from handlers.menu_handler import handle_menu, handle_national_code
 import nest_asyncio
 from menus import MENU_OPTIONS
+
 
 nest_asyncio.apply()
 
@@ -29,8 +28,9 @@ async def main():
     application = Application.builder().token(TOKEN).build()
 
     # افزودن هندلرها
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CallbackQueryHandler(handle_menu))  # استفاده از هندلر جدید
+    application.add_handler(CommandHandler("start", start))  # هندلر شروع
+    application.add_handler(CallbackQueryHandler(handle_menu))  # استفاده از هندلر جدید برای منو
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_national_code))  # دریافت پیام‌های کد ملی
 
     # اجرای ربات
     await application.run_polling()
